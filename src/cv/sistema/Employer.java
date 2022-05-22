@@ -56,7 +56,7 @@ public class Employer extends GuiAgent {
         msg.addReceiver(new AID("Employee", AID.ISLOCALNAME));
         
         switch (cmd) {
-            case Employer.ADDJOB: {      
+            case Employer.ADDJOB: {   
                 Darbas job = new Darbas();
                 job.setPavadinimas((String) ge.getParameter(0));
                 job.setAtlyginimas(Float.parseFloat((String) ge.getParameter(1)));
@@ -67,29 +67,44 @@ public class Employer extends GuiAgent {
                 content.setDarbas(job);
                 
                 jobList.add(job);
+                try {
+                cm.fillContent(msg, content);
+                }
+                catch (Codec.CodecException | OntologyException ex) {
+                    System.out.println("A["+getLocalName()+"] Error while building message: "+ex.getMessage());
+                }
+                break;
             }
             case Employer.ACCEPT: {
                 AnswerMsg content = new AnswerMsg();
                 content.setAccepted(true);
-                content.setId(Integer.parseInt((String) ge.getParameter(0)));
+                content.setId((int) ge.getParameter(0));
+                try {
+                cm.fillContent(msg, content);
+                }
+                catch (Codec.CodecException | OntologyException ex) {
+                    System.out.println("A["+getLocalName()+"] Error while building message: "+ex.getMessage());
+                }
+                break;
             }
             case Employer.REJECT: {
                 AnswerMsg content = new AnswerMsg();
                 content.setAccepted(false);
-                content.setId(Integer.parseInt((String) ge.getParameter(0)));
-            }
-            default:
-                AnswerMsg content = null;
-                
-            try {
+                content.setId((int) ge.getParameter(0));
+                try {
                 cm.fillContent(msg, content);
+                }
+                catch (Codec.CodecException | OntologyException ex) {
+                    System.out.println("A["+getLocalName()+"] Error while building message: "+ex.getMessage());
+                }
+                break;
             }
-            catch (Codec.CodecException | OntologyException ex) {
-                System.out.println("A["+getLocalName()+"] Error while building message: "+ex.getMessage());
+            default: {
+                break;
             }
-
-            send(msg);
         }
+        
+        send(msg);
     }
     
     private class WaitForMessages extends CyclicBehaviour {

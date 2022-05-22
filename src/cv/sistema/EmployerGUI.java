@@ -181,7 +181,7 @@ public class EmployerGUI extends javax.swing.JFrame {
     private void SetInfoText(ApplyMsg application) {
         Darbuotojas employee = application.getDarbuotojas();
         Darbas job = FindJobByID(application.getId());
-        infoLabel.setText("<html>"+employee.getVardas()+" "+employee.getPavarde()+" applied for:<br/>"+job.getPavadinimas());
+        infoLabel.setText("<html>"+employee.getVardas()+" "+employee.getPavarde()+" nori darbo:<br/>"+job.getPavadinimas()+"</html>");
     }
     
     public Darbas FindJobByID(int id) {
@@ -223,6 +223,9 @@ public class EmployerGUI extends javax.swing.JFrame {
 
     private void acceptEmployeeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acceptEmployeeButtonActionPerformed
         GuiEvent ge = new GuiEvent(this, Employer.ACCEPT);
+        if(applicationList.isEmpty()) {
+            return;
+        }
         ApplyMsg application = applicationList.get(0);
         ge.addParameter(application.getId());
         myAgent.postGuiEvent(ge);
@@ -230,11 +233,16 @@ public class EmployerGUI extends javax.swing.JFrame {
         
         if (!applicationList.isEmpty()) {
             SetInfoText(applicationList.get(0));
+        } else {
+            infoLabel.setText("");
         }
     }//GEN-LAST:event_acceptEmployeeButtonActionPerformed
 
     private void RejectEmployeeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RejectEmployeeButtonActionPerformed
         GuiEvent ge = new GuiEvent(this, Employer.REJECT);
+        if(applicationList.isEmpty()) {
+            return;
+        }
         ApplyMsg application = applicationList.get(0);
         ge.addParameter(application.getId());
         myAgent.postGuiEvent(ge);
@@ -242,6 +250,8 @@ public class EmployerGUI extends javax.swing.JFrame {
         
         if (!applicationList.isEmpty()) {
             SetInfoText(applicationList.get(0));
+        } else {
+            infoLabel.setText("");
         }
     }//GEN-LAST:event_RejectEmployeeButtonActionPerformed
 
@@ -255,7 +265,7 @@ public class EmployerGUI extends javax.swing.JFrame {
     private javax.swing.JButton acceptEmployeeButton;
     private javax.swing.JButton addJobButton;
     private javax.swing.JTextField experience;
-    private javax.swing.JLabel infoLabel;
+    public javax.swing.JLabel infoLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
