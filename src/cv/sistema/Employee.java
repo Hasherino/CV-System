@@ -64,10 +64,10 @@ public class Employee extends GuiAgent {
  
         try {
             rec = SearchForService("employer");
-        if (rec == null) {
-            addBehaviour(new SubscribeServiceProviders("employee"));
-            addBehaviour(new ServiceRegistrationNotification());
-        }
+            if (rec == null) {
+                addBehaviour(new SubscribeServiceProviders("employee"));
+                addBehaviour(new ServiceRegistrationNotification());
+            }
         } catch (FIPAException ex) {
             Logger.getLogger(Employee.class.getName()).log(Level.SEVERE, null, ex);
         }

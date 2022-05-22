@@ -3,8 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/povilas/NetBeansProjects/CV%20sistema/src/cv/sistema/EmployerGUI.java</file>
-            <file>file:/home/povilas/NetBeansProjects/CV%20sistema/src/cv/sistema/Employer.java</file>
+            <file>file:/home/povilas/NetBeansProjects/CV-System/src/cv/sistema/EmployeeGUI.java</file>
+            <file>file:/home/povilas/NetBeansProjects/CV-System/src/cv/sistema/Employee.java</file>
+            <file>file:/home/povilas/NetBeansProjects/CV-System/src/cv/sistema/Employer.java</file>
+            <file>file:/home/povilas/NetBeansProjects/CV-System/src/cv/sistema/EmployerGUI.java</file>
         </group>
     </open-files>
 </project-private>

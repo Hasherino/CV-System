@@ -227,9 +227,17 @@ public class EmployerGUI extends javax.swing.JFrame {
             return;
         }
         ApplyMsg application = applicationList.get(0);
-        ge.addParameter(application.getId());
+        int id = application.getId();
+        ge.addParameter(id);
         myAgent.postGuiEvent(ge);
         applicationList.remove(0);
+        
+        ArrayList<ApplyMsg> toRemove = new ArrayList<>();
+        for (ApplyMsg appl : applicationList) {
+            if (appl.getId() == id)
+                toRemove.add(appl);
+        }
+        applicationList.removeAll(toRemove);
         
         if (!applicationList.isEmpty()) {
             SetInfoText(applicationList.get(0));
