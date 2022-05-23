@@ -32,9 +32,11 @@ import ontology.JobOntology;
 public class Employer extends GuiAgent {
     public ArrayList<Darbas> jobList = new ArrayList<>();
     AID rec;
+    AID stats;
     public static final int ADDJOB = 1;
     public static final int ACCEPT = 2;
     public static final int REJECT = 3;
+    public static final int GETSTATS = 4;
     
     EmployerGUI myGui = null;
     
@@ -74,6 +76,11 @@ public class Employer extends GuiAgent {
                 addBehaviour(new SubscribeServiceProviders("employee"));
                 addBehaviour(new ServiceRegistrationNotification());
             }
+            stats = SearchForService("stats");
+            if (stats == null) {
+                addBehaviour(new SubscribeServiceProviders("stats"));
+                addBehaviour(new ServiceRegistrationNotification());
+            }
         } catch (FIPAException ex) {
             Logger.getLogger(Employee.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -98,6 +105,8 @@ public class Employer extends GuiAgent {
         msg.clearAllReceiver();
         msg.addReceiver(rec);
         
+        boolean send = true;
+        
         switch (cmd) {
             case Employer.ADDJOB: {   
                 Darbas job = new Darbas();
@@ -116,6 +125,13 @@ public class Employer extends GuiAgent {
                 catch (Codec.CodecException | OntologyException ex) {
                     System.out.println("A["+getLocalName()+"] Error while building message: "+ex.getMessage());
                 }
+                
+                ACLMessage inf = new ACLMessage(ACLMessage.INFORM);
+                inf.clearAllReceiver();
+                inf.addReceiver(stats);
+                inf.setContent("new job;"+job.getAtlyginimas());
+                send(inf);
+                
                 break;
             }
             case Employer.ACCEPT: {
@@ -128,6 +144,13 @@ public class Employer extends GuiAgent {
                 catch (Codec.CodecException | OntologyException ex) {
                     System.out.println("A["+getLocalName()+"] Error while building message: "+ex.getMessage());
                 }
+                
+                ACLMessage inf = new ACLMessage(ACLMessage.INFORM);
+                inf.clearAllReceiver();
+                inf.addReceiver(stats);
+                inf.setContent("acceptance");
+                send(inf);
+                
                 break;
             }
             case Employer.REJECT: {
@@ -140,14 +163,26 @@ public class Employer extends GuiAgent {
                 catch (Codec.CodecException | OntologyException ex) {
                     System.out.println("A["+getLocalName()+"] Error while building message: "+ex.getMessage());
                 }
+                
                 break;
             }
+            case Employer.GETSTATS: {
+                ACLMessage req = new ACLMessage(ACLMessage.REQUEST);
+                req.clearAllReceiver();
+                req.addReceiver(stats);
+                req.setContent("stats");
+                send(req);
+                send = false;
+                
+                break;
+            } 
             default: {
                 break;
             }
         }
         
-        send(msg);
+        if (send)
+            send(msg);
     }
     
     private class WaitForMessages extends CyclicBehaviour {
@@ -166,19 +201,29 @@ public class Employer extends GuiAgent {
             ACLMessage message = myAgent.receive();
             
             if (message != null) {
-                try {
-                    ContentElement c = cm.extractContent(message);
-                    
-                    if (c instanceof ApplyMsg) {
-                        if (myGui.FindJobByID(((ApplyMsg) c).getId()) != null) {
-                            myGui.AddApplication((ApplyMsg) c);
-                        } else {
-                            System.out.println("A["+getLocalName()+"] Job does not exist: "+((ApplyMsg) c).getId());
+                if (message.getContent().startsWith("<html>")) {
+                    myGui.statsLabel.setText(message.getContent());
+                } else {
+                    try {
+                        ContentElement c = cm.extractContent(message);
+
+                        if (c instanceof ApplyMsg) {
+                            if (myGui.FindJobByID(((ApplyMsg) c).getId()) != null) {
+                                myGui.AddApplication((ApplyMsg) c);
+
+                                ACLMessage inf = new ACLMessage(ACLMessage.INFORM);
+                                inf.clearAllReceiver();
+                                inf.addReceiver(stats);
+                                inf.setContent("application");
+                                send(inf);
+                            } else {
+                                System.out.println("A["+getLocalName()+"] Job does not exist: "+((ApplyMsg) c).getId());
+                            }
                         }
                     }
-                }
-                catch (Codec.CodecException | OntologyException ex) {
-                    System.out.println("A["+getLocalName()+"] Ontology parsing error: "+ex.getMessage());
+                    catch (Codec.CodecException | OntologyException ex) {
+                        System.out.println("A["+getLocalName()+"] Ontology parsing error: "+ex.getMessage());
+                    }
                 }
             }
             else {
@@ -249,7 +294,10 @@ public class Employer extends GuiAgent {
                             while (it.hasNext()) {
                                 sd = (ServiceDescription) it.next();
                                 System.out.println("\t\t Agent " + dfd.getName().getName() + " is providing: " + sd.getName() + " service, of type " + sd.getType());
-                                rec = dfd.getName();
+                                if (sd.getType().equals("stats"))
+                                    stats = dfd.getName();
+                                else
+                                    rec = dfd.getName();
                             }
                         }
                     }
